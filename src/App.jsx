@@ -1,11 +1,18 @@
-import { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { createClient } from "@supabase/supabase-js";
 
 // ─── CONFIG ──────────────────────────────────────────────────────────────────
 // These get replaced with your real values from Supabase dashboard
 const SUPABASE_URL = process.env.REACT_APP_SUPABASE_URL || "";
 const SUPABASE_ANON_KEY = process.env.REACT_APP_SUPABASE_ANON_KEY || "";
-const supabase = SUPABASE_URL ? createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
+let supabase = null;
+try {
+  if (SUPABASE_URL && SUPABASE_ANON_KEY) {
+    supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  }
+} catch(e) {
+  console.error("Supabase init error:", e);
+}
 
 // ─── DESIGN TOKENS ───────────────────────────────────────────────────────────
 const T = {
@@ -753,6 +760,24 @@ function SettingsModal({onClose,hsToken,setHsToken}) {
 }
 
 // ─── ROOT APP ─────────────────────────────────────────────────────────────────
+class ErrorBoundary extends React.Component {
+  constructor(props) { super(props); this.state = { hasError: false, error: null }; }
+  static getDerivedStateFromError(error) { return { hasError: true, error }; }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div style={{minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",background:"#1A3A5C",color:"white",fontFamily:"system-ui",padding:40,flexDirection:"column",gap:16}}>
+          <div style={{fontSize:24,fontWeight:700}}>Renegade Land Title & Leasing</div>
+          <div style={{fontSize:14,color:"rgba(255,255,255,0.7)"}}>App Error — please refresh</div>
+          <div style={{fontSize:12,color:"rgba(255,255,255,0.4)",maxWidth:600,wordBreak:"break-all"}}>{String(this.state.error)}</div>
+          <button onClick={()=>window.location.reload()} style={{padding:"10px 24px",background:"#C8742A",border:"none",borderRadius:8,color:"white",fontSize:14,cursor:"pointer",marginTop:8}}>Reload</button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
 export default function App() {
   const [session,setSession] = useState(null);
   const [userRole,setUserRole] = useState("landman");
