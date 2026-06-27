@@ -667,20 +667,17 @@ function AgentModule({userRole}) {
   const [messages,setMessages] = useState([{role:"agent",type:"welcome",ts:new Date()}]);
   const [input,setInput] = useState("");
   const [loading,setLoading] = useState(false);
-  const apiKey = localStorage.getItem("elt_claude_key") || "";
-  const [showKey,setShowKey] = useState(!apiKey);
-  const [keyVal,setKeyVal] = useState(apiKey);
+  const CLAUDE_PROXY = "https://odgqzgabdvvssrzwhtyn.supabase.co/functions/v1/claude-proxy";
 
   const send = async() => {
     if(!input.trim()||loading) return;
-    if(!apiKey){ setShowKey(true); return; }
     const msg = input.trim(); setInput("");
     setMessages(m=>[...m,{role:"user",content:msg,ts:new Date()}]);
     setLoading(true);
     try {
-      const res = await fetch("https://api.anthropic.com/v1/messages",{
+      const res = await fetch(CLAUDE_PROXY,{
         method:"POST",
-        headers:{"Content-Type":"application/json","x-api-key":apiKey,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
+        headers:{"Content-Type":"application/json"},
         body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:1000,system:`You are the Renegade Land Title & Leasing Operations Agent. You help with energy land title business development across Oklahoma, Texas, New Mexico, Kansas, and Arkansas. Answer questions, generate lead ideas, draft outreach, and provide operational guidance. Be specific, practical, and direct.`,messages:[{role:"user",content:msg}]})
       });
       const d = await res.json();
@@ -696,14 +693,6 @@ function AgentModule({userRole}) {
 
   return (
     <div style={{display:"flex",flexDirection:"column",height:"calc(100vh - 120px)"}}>
-      {showKey&&<div style={{background:T.white,border:`1.5px solid ${T.orange}`,borderRadius:10,padding:"14px 16px",marginBottom:12}}>
-        <div style={{fontSize:13,fontWeight:700,color:T.navy,marginBottom:8}}>Enter Claude API Key</div>
-        <div style={{display:"flex",gap:8}}>
-          <input type="password" value={keyVal} onChange={e=>setKeyVal(e.target.value)} placeholder="sk-ant-api03-..." style={{flex:1,padding:"8px 12px",border:`1px solid ${T.border}`,borderRadius:8,fontSize:13}}/>
-          <Btn variant="primary" onClick={()=>{localStorage.setItem("elt_claude_key",keyVal);setShowKey(false);}}>Save</Btn>
-        </div>
-        <div style={{fontSize:11,color:T.silver,marginTop:6}}>Get your key at console.anthropic.com → API Keys</div>
-      </div>}
       <div style={{flex:1,overflowY:"auto",display:"flex",flexDirection:"column",gap:12,paddingBottom:8}}>
         {messages.map((msg,i)=>(
           <div key={i}>
@@ -720,7 +709,6 @@ function AgentModule({userRole}) {
         <div style={{display:"flex",gap:8}}>
           <input value={input} onChange={e=>setInput(e.target.value)} onKeyDown={e=>e.key==="Enter"&&!e.shiftKey&&(e.preventDefault(),send())} placeholder="Ask the agent anything…" style={{flex:1,padding:"10px 14px",border:`1.5px solid ${T.border}`,borderRadius:10,fontSize:13,color:T.navy}}/>
           <button onClick={send} disabled={loading} style={{padding:"10px 20px",background:loading?T.silver:T.orange,color:"white",border:"none",borderRadius:10,fontSize:13,fontWeight:700,cursor:loading?"not-allowed":"pointer"}}>{loading?"…":"Send ↵"}</button>
-          <button onClick={()=>setShowKey(true)} style={{padding:"10px 12px",background:T.fog,border:`1px solid ${T.border}`,borderRadius:10,fontSize:13,cursor:"pointer",color:apiKey?T.orange:T.silver}}>🔑</button>
         </div>
       </div>
     </div>
