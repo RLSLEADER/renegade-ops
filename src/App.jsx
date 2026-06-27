@@ -667,7 +667,7 @@ function AgentModule({userRole}) {
   const [messages,setMessages] = useState([{role:"agent",type:"welcome",ts:new Date()}]);
   const [input,setInput] = useState("");
   const [loading,setLoading] = useState(false);
-  const apiKey = localStorage.getItem("elt_claude_key")||"";
+  const apiKey = process.env.REACT_APP_CLAUDE_API_KEY || localStorage.getItem("elt_claude_key") || "";
   const [showKey,setShowKey] = useState(!apiKey);
   const [keyVal,setKeyVal] = useState(apiKey);
 
@@ -784,7 +784,7 @@ export default function App() {
   const [userName,setUserName] = useState("");
   const [activeTab,setActiveTab] = useState("overview");
   const [showSettings,setShowSettings] = useState(false);
-  const [hsToken,setHsToken] = useState(()=>localStorage.getItem("elt_hs_token")||"");
+  const [hsToken,setHsToken] = useState(()=>process.env.REACT_APP_HUBSPOT_TOKEN || localStorage.getItem("elt_hs_token") || "");
   const [counts,setCounts] = useState({});
 
   useEffect(()=>{
