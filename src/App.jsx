@@ -667,7 +667,7 @@ function AgentModule({userRole}) {
   const [messages,setMessages] = useState([{role:"agent",type:"welcome",ts:new Date()}]);
   const [input,setInput] = useState("");
   const [loading,setLoading] = useState(false);
-  const apiKey = process.env.REACT_APP_CLAUDE_API_KEY || localStorage.getItem("elt_claude_key") || "";
+  const apiKey = localStorage.getItem("elt_claude_key") || "";
   const [showKey,setShowKey] = useState(!apiKey);
   const [keyVal,setKeyVal] = useState(apiKey);
 
